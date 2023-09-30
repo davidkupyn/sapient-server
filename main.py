@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
 import psycopg2
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True, resources={r"*": {"origins": "*"}})
 
 database = os.getenv("DATABASE")
 user = os.getenv("USER")
