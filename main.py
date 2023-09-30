@@ -17,7 +17,7 @@ port = os.getenv("PORT")
 def index():
     return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
-@app.route('/search', methods=['GET'])
+@app.route('/schools', methods=['GET'])
 def search():
     conn = psycopg2.connect(database=database, 
                             user=user,
@@ -36,7 +36,7 @@ def search():
     
     return data
 
-@app.route('/search/<string:school_id>', methods=['GET'])
+@app.route('/school/<string:school_id>', methods=['GET'])
 def get_school(school_id):
     conn = psycopg2.connect(database=database, 
                             user=user,
