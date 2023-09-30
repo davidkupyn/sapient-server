@@ -36,5 +36,24 @@ def search():
     
     return data
 
+@app.route('/search/<string:school_id>', methods=['GET'])
+def get_school(school_id):
+    conn = psycopg2.connect(database=database, 
+                            user=user,
+                            password=password, 
+                            host=host, 
+                            port=port)
+    
+    cur = conn.cursor()
+
+    cur.execute(f"SELECT * FROM schools WHERE school_id = {school_id}")
+  
+    data = cur.fetchall()
+  
+    cur.close()
+    conn.close()
+    
+    return data
+
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
