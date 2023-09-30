@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import psycopg2
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -17,8 +17,22 @@ port = os.getenv("PORT")
 def index():
     return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
-@app.route('/schools', methods=['GET'])
+@app.route('/search/<string:q>', methods=['GET'])
 def search():
+    # conn = psycopg2.connect(database=database,
+    #                         user=user,
+    #                         password=password,
+    #                         host=host,
+    #                         port=port)
+    
+    q = request.args.get('q')
+    
+    # cur = conn.cursor()
+
+    return jsonify({"q": q})
+
+@app.route('/schools', methods=['GET'])
+def schools():
     conn = psycopg2.connect(database=database, 
                             user=user,
                             password=password, 
