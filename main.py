@@ -41,7 +41,7 @@ def schools():
     
     cur = conn.cursor()
 
-    cur.execute('SELECT * FROM test')
+    cur.execute('SELECT name FROM schools')
   
     data = cur.fetchall()
   
@@ -68,6 +68,7 @@ def get_school(school_id):
     conn.close()
     
     return data
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
