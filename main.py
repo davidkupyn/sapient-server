@@ -87,7 +87,19 @@ def ai_api():
         temperature=0.1, 
     )
 
-    response = chat["choices"][0]["message"]["content"] 
+    response = chat["choices"][0]["message"]["content"]
+
+    conn = psycopg2.connect(database=database, 
+                            user=user,
+                            password=password, 
+                            host=host, 
+                            port=port)
+    
+    cur = conn.cursor()
+    
+    transformed_response = response.replace(" ", " & ")
+
+    # cur.execute(f"SELECT id")
 
     return response
 
