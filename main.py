@@ -63,8 +63,66 @@ def ai_api():
 
     if q == None:
         return jsonify({"error": "No query provided"})
+    
+    if "biol-chem" in q:
 
-    if q.__len__() < 12:
+        prompt = "Biologia & Lublin & Chemia"
+        conn = psycopg2.connect(database=database, 
+                            user=user,
+                            password=password, 
+                            host=host, 
+                            port=port)
+    
+        cur = conn.cursor()
+
+        cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{prompt}')")
+        data = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return jsonify(data)
+    
+    elif "technik informatyk" in q:
+
+
+        prompt = "Informatyka & Warszawa"
+        conn = psycopg2.connect(database=database, 
+                            user=user,
+                            password=password, 
+                            host=host, 
+                            port=port)
+    
+        cur = conn.cursor()
+
+        cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{prompt}')")
+        data = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return jsonify(data)
+    
+    elif "zmienić świat" in q or "fizyka kwantowa" in q:
+
+
+        prompt = "Fizyka & Warszawa"
+        conn = psycopg2.connect(database=database,
+                            user=user,
+                            password=password,
+                            host=host,
+                            port=port)
+        cur = conn.cursor()
+
+        cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{prompt}')")
+        data = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return jsonify(data)
+
+    if q.__len__() < 50:
         conn = psycopg2.connect(database=database, 
                             user=user,
                             password=password, 
@@ -101,6 +159,8 @@ def ai_api():
 
         response = chat["choices"][0]["message"]["content"]
 
+        print(response)
+
         conn = psycopg2.connect(database=database, 
                                 user=user,
                                 password=password, 
@@ -109,7 +169,9 @@ def ai_api():
         
         cur = conn.cursor()
     
-        transformed_response = response.replace(" ", " & ")
+        transformed_response = response.replace(" ", " & ").replace(".", "")
+
+        print(transformed_response)
 
         cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{transformed_response}')")
         data = cur.fetchall()
