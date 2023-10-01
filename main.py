@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import psycopg2
 from flask_cors import CORS
 from dotenv import load_dotenv
+import openai
 import os
 
 app = Flask(__name__)
@@ -26,20 +27,9 @@ def search():
                             port=port)
     
     cur = conn.cursor()
-    
     q = request.args.get('q')
-    split_q = q.split(" ")
 
-    for i in range(len(split_q)):
-        split_q[i] = split_q[i] + " & "
-
-    split_q[-1] = split_q[-1][:-2]
-    split_q = "".join(split_q)
-
-    query = f"SELECT id FROM schools WHERE ts_vector_col @@ to_tsquery('polish', %s)"
-    cur.execute(query, (split_q,))
-
-    data = cur.fetchall()
+    sql = "SELECT name, description, city FROM schools WHERE "
 
     cur.close()
     conn.close()
@@ -56,14 +46,14 @@ def schools():
     
     cur = conn.cursor()
 
-    cur.execute('SELECT name FROM schools')
+    cur.execute('SELECT name, LEFT(school_description, 100) AS school_description, city, phone FROM schools')
   
     data = cur.fetchall()
   
     cur.close()
     conn.close()
     
-    return data
+    return jsonify(data)
 
 @app.route('/school/<string:school_id>', methods=['GET'])
 def get_school(school_id):
@@ -84,6 +74,22 @@ def get_school(school_id):
     
     return data
 
+@app.route('/ai', methods=['GET'])
+def ai_api():
+
+    p = request.args.get('p')
+
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    messages = [{"role": "user", "content": p}] 
+    chat = openai.ChatCompletion.create( 
+        model="gpt-3.5-turbo", 
+        messages=messages, 
+        temperature=0.1, 
+    )
+
+    response = chat["choices"][0]["message"]["content"] 
+
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
