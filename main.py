@@ -134,9 +134,6 @@ def ai_api():
         cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{transformed_response}')")
         data = cur.fetchall()
 
-        if len(data) == 0:
-            return jsonify({"message": "Nie znaleziono szkół spełniających twoje kryteria. Spróbuj ponownie."})
-
         cur.close()
         conn.close()
 
@@ -174,9 +171,6 @@ def ai_api():
 
         cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{transformed_response}')")
         data = cur.fetchall()
-
-        if len(data) == 0:
-            return jsonify({"message": "Nie znaleziono szkół spełniających twoje kryteria. Spróbuj ponownie."})
 
         cur.close()
         conn.close()
