@@ -103,10 +103,9 @@ def ai_api():
 
         return jsonify(data)
     
-    elif "zmienić świat" in q or "fizyka kwantowa" in q:
+    elif "architektura" in q or "firma budowlana" in q:
 
-
-        prompt = "Fizyka & Warszawa"
+        prompt = "architektura"
         conn = psycopg2.connect(database=database,
                             user=user,
                             password=password,
