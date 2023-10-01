@@ -103,7 +103,7 @@ def ai_api():
 
         return jsonify(data)
     
-    elif "architektura" in q or "firme budowlana" in q:
+    elif "architektura" in q or "firmę budowlaną" in q:
 
         prompt = "architektura"
         conn = psycopg2.connect(database=database,
