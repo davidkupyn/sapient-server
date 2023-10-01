@@ -18,24 +18,6 @@ port = os.getenv("PORT")
 def index():
     return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
-@app.route('/search', methods=['GET'])
-def search():
-    conn = psycopg2.connect(database=database,
-                            user=user,
-                            password=password,
-                            host=host,
-                            port=port)
-    
-    cur = conn.cursor()
-    q = request.args.get('q')
-
-    sql = "SELECT name, description, city FROM schools WHERE "
-
-    cur.close()
-    conn.close()
-
-    return jsonify(data)
-
 @app.route('/schools', methods=['GET'])
 def schools():
     conn = psycopg2.connect(database=database, 
@@ -79,8 +61,13 @@ def ai_api():
 
     q = request.args.get('q')
 
+    gpt_prompt_schema = "Przetransformuj odpowiedź użytkownika, tak aby była zdatna do użycia w wyszukiwarce. Musisz ocenić zdolności użytkownika, jego mocne i słabe strony oraz to, co opowie o sobie, aby znaleźć dla niego idealny kierunek studiów. Jeżeli wspomni coś o lokalizacji, uwzględnij to. Prompt do wyszukiwarki, który masz za zadanie napisać, musi być krótki i zawierać kluczowe słowa. Przykład: Użytkownik napisał: 'Uwielbiam informatykę! Od urodzenia jestem umysłem ścisłym, jednak nie mogę się zdecydować nad studiami. Chciałbym zostać w moim rodzinnym mieście - Warszawie.' Twoja odpowiedź powinna brzmieć: 'Informatyka Warszawa.' PAMIĘTAJ, ABY OGRANICZYĆ SIĘ DO KILKU (max 3) KLUCZOWYCH SŁÓW KTÓRE POMOGĄ OSOBIE OPISUJĄCEJ ZNALEŹĆ IDEALNY PROFIL STUDENCKI!!! Twój opis do analizy to: "
+    gpt_prompt_end = "MAKSYMALNA ILOŚĆ SŁÓW KLUCZOWYCH DO UŻYCIA TO 3. ODWOŁUJ SIĘ JEDYNIE DO PRZYSZYŁYCH STUDIÓW A NIE PRACY, unikaj przecinków i kropek, pamiętaj o podaniu lokalizacji jeśli użytkownik ją uwzględnił."
+
+    gpt_prompt = gpt_prompt_schema + q + gpt_prompt_end
+
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    messages = [{"role": "user", "content": q}] 
+    messages = [{"role": "user", "content": gpt_prompt}] 
     chat = openai.ChatCompletion.create( 
         model="gpt-3.5-turbo", 
         messages=messages, 
@@ -98,9 +85,18 @@ def ai_api():
     cur = conn.cursor()
     
     transformed_response = response.replace(" ", " & ")
-    cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, ")
+    cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{transformed_response}')")
 
-    return response
+    data = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    # return voivodeship list
+    # return cities list
+    # return 
+
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
