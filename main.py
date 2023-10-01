@@ -17,19 +17,34 @@ port = os.getenv("PORT")
 def index():
     return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
-@app.route('/search/<string:q>', methods=['GET'])
+@app.route('/search', methods=['GET'])
 def search():
-    # conn = psycopg2.connect(database=database,
-    #                         user=user,
-    #                         password=password,
-    #                         host=host,
-    #                         port=port)
+    conn = psycopg2.connect(database=database,
+                            user=user,
+                            password=password,
+                            host=host,
+                            port=port)
+    
+    cur = conn.cursor()
     
     q = request.args.get('q')
-    
-    # cur = conn.cursor()
+    split_q = q.split(" ")
 
-    return jsonify({"q": q})
+    for i in range(len(split_q)):
+        split_q[i] = split_q[i] + " & "
+
+    split_q[-1] = split_q[-1][:-2]
+    split_q = "".join(split_q)
+
+    query = f"SELECT id FROM schools WHERE ts_vector_col @@ to_tsquery('polish', %s)"
+    cur.execute(query, (split_q,))
+
+    data = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify(data)
 
 @app.route('/schools', methods=['GET'])
 def schools():
