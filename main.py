@@ -98,8 +98,7 @@ def ai_api():
     cur = conn.cursor()
     
     transformed_response = response.replace(" ", " & ")
-
-    # cur.execute(f"SELECT id")
+    cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, ")
 
     return response
 
