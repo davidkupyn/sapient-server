@@ -46,7 +46,7 @@ def schools():
     
     cur = conn.cursor()
 
-    cur.execute('SELECT name, LEFT(school_description, 100) AS school_description, city, phone FROM schools')
+    cur.execute('SELECT id, name, LEFT(school_description, 100) AS school_description, city, phone FROM schools')
   
     data = cur.fetchall()
   
@@ -74,13 +74,13 @@ def get_school(school_id):
     
     return data
 
-@app.route('/ai', methods=['GET'])
+@app.route('/search', methods=['GET'])
 def ai_api():
 
-    p = request.args.get('p')
+    q = request.args.get('q')
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    messages = [{"role": "user", "content": p}] 
+    messages = [{"role": "user", "content": q}] 
     chat = openai.ChatCompletion.create( 
         model="gpt-3.5-turbo", 
         messages=messages, 
