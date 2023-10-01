@@ -47,7 +47,7 @@ def get_school(school_id):
     
     cur = conn.cursor()
 
-    cur.execute(f"SELECT name, address, city, www, email, facebook, phone, school_description, recrutation_description FROM schools WHERE school_id = {school_id}")
+    cur.execute(f"SELECT name, address, city, www, email, facebook, phone, school_description, recrutation_description FROM schools WHERE id = {school_id}")
   
     data = cur.fetchall()
   
