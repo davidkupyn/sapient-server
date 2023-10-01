@@ -89,16 +89,12 @@ def ai_api():
     
     transformed_response = response.replace(" ", " & ")
 
-    print(transformed_response)
-
     cur.execute(f"SELECT id, name, city, LEFT(school_description, 100) AS school_description, voivodeship FROM schools WHERE ts_vector @@ to_tsquery('{transformed_response}')")
 
     data = cur.fetchall()
 
     cur.close()
     conn.close()
-
-    print(data)
 
     # return voivodeship list
     # return cities list
